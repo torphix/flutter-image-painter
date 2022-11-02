@@ -765,6 +765,21 @@ class ImagePainterState extends State<ImagePainter> {
     return byteData?.buffer.asUint8List();
   }
 
+  Future<Uint8List?> exportPaintHistory(ui.Image image) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final painter = DrawImage(image: image, paintHistory: _paintHistory);
+
+    final size = Size(image.width.toDouble(), image.height.toDouble());
+    painter.paint(canvas, size);
+    final _convertedImage = await recorder
+        .endRecording()
+        .toImage(size.width.floor(), size.height.floor());
+    final byteData =
+        await _convertedImage.toByteData(format: ui.ImageByteFormat.png);
+    return byteData?.buffer.asUint8List();
+  }
+
   void _addPaintHistory(PaintInfo info) {
     if (info.mode != PaintMode.none) {
       _paintHistory.add(info);
